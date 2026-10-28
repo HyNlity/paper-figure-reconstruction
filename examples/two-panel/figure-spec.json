@@ -1,0 +1,243 @@
+{
+  "version": 1,
+  "source": {
+    "path": "reference.png",
+    "sha256": "0fe92d179e1d88b983201417096299378ee4bace9bbc0689b7d818771cabd4d8",
+    "figure": "original two-panel forward test",
+    "rights": "Original test illustration created for this skill evaluation"
+  },
+  "canvas": {
+    "width": 600,
+    "height": 320,
+    "background": "#ffffff"
+  },
+  "panels": [
+    {
+      "id": "a",
+      "bbox": [
+        0,
+        0,
+        0.5,
+        1
+      ]
+    },
+    {
+      "id": "b",
+      "bbox": [
+        0.5,
+        0,
+        0.5,
+        1
+      ]
+    }
+  ],
+  "protected_regions": [
+    {
+      "id": "protected-b",
+      "bbox": [
+        0.5,
+        0,
+        0.5,
+        1
+      ]
+    }
+  ],
+  "components": [
+    {
+      "id": "panel-a-layer",
+      "type": "group"
+    },
+    {
+      "id": "panel-b-layer",
+      "type": "group"
+    },
+    {
+      "id": "panel-a",
+      "type": "rect",
+      "x": 0.03166666666666666,
+      "y": 0.14375,
+      "w": 0.43722222222222223,
+      "h": 0.7604166666666666,
+      "fill": "#f8fafc",
+      "stroke": "#b8c2cc",
+      "stroke_width": 2,
+      "parent": "panel-a-layer"
+    },
+    {
+      "id": "panel-b",
+      "type": "rect",
+      "x": 0.5316666666666667,
+      "y": 0.14375,
+      "w": 0.43722222222222223,
+      "h": 0.7604166666666666,
+      "fill": "#f8fafc",
+      "stroke": "#b8c2cc",
+      "stroke_width": 2,
+      "parent": "panel-b-layer"
+    },
+    {
+      "id": "label-a",
+      "type": "text",
+      "x": 0.03333333333333333,
+      "y": 0.0875,
+      "text": "a",
+      "font_family": "Arial",
+      "font_size": 22,
+      "fill": "#222222",
+      "parent": "panel-a-layer"
+    },
+    {
+      "id": "label-b",
+      "type": "text",
+      "x": 0.5333333333333333,
+      "y": 0.0875,
+      "text": "b",
+      "font_family": "Arial",
+      "font_size": 22,
+      "fill": "#222222",
+      "parent": "panel-b-layer"
+    },
+    {
+      "id": "heading-a",
+      "type": "text",
+      "x": 0.06,
+      "y": 0.25,
+      "text": "Excitation",
+      "font_family": "Arial",
+      "font_size": 20,
+      "fill": "#222222",
+      "parent": "panel-a-layer"
+    },
+    {
+      "id": "heading-b",
+      "type": "text",
+      "x": 0.56,
+      "y": 0.25,
+      "text": "Detection",
+      "font_family": "Arial",
+      "font_size": 20,
+      "fill": "#222222",
+      "parent": "panel-b-layer"
+    },
+    {
+      "id": "source-label",
+      "type": "text",
+      "x": 0.075,
+      "y": 0.71875,
+      "text": "Source",
+      "font_family": "Arial",
+      "font_size": 18,
+      "fill": "#222222",
+      "parent": "panel-a-layer"
+    },
+    {
+      "id": "sample-label-a",
+      "type": "text",
+      "x": 0.30333333333333334,
+      "y": 0.71875,
+      "text": "Sample",
+      "font_family": "Arial",
+      "font_size": 18,
+      "fill": "#222222",
+      "parent": "panel-a-layer"
+    },
+    {
+      "id": "sample-label-b",
+      "type": "text",
+      "x": 0.575,
+      "y": 0.71875,
+      "text": "Sample",
+      "font_family": "Arial",
+      "font_size": 18,
+      "fill": "#222222",
+      "parent": "panel-b-layer"
+    },
+    {
+      "id": "sensor-label",
+      "type": "text",
+      "x": 0.7933333333333333,
+      "y": 0.71875,
+      "text": "Sensor",
+      "font_family": "Arial",
+      "font_size": 18,
+      "fill": "#222222",
+      "parent": "panel-b-layer"
+    },
+    {
+      "id": "source",
+      "type": "ellipse",
+      "cx": 0.1286111111111111,
+      "cy": 0.49114583333333334,
+      "rx": 0.04861111111111111,
+      "ry": 0.09114583333333333,
+      "fill": "#8fbce6",
+      "stroke": "#386d9d",
+      "stroke_width": 2,
+      "parent": "panel-a-layer"
+    },
+    {
+      "id": "sample-a",
+      "type": "rect",
+      "x": 0.31,
+      "y": 0.39999999999999997,
+      "w": 0.09722222222222222,
+      "h": 0.18229166666666666,
+      "fill": "#d9a1c9",
+      "stroke": "#965585",
+      "stroke_width": 2,
+      "parent": "panel-a-layer"
+    },
+    {
+      "id": "sample-b",
+      "type": "rect",
+      "x": 0.5800000000000001,
+      "y": 0.39999999999999997,
+      "w": 0.09722222222222222,
+      "h": 0.18229166666666666,
+      "fill": "#d9a1c9",
+      "stroke": "#965585",
+      "stroke_width": 2,
+      "parent": "panel-b-layer"
+    },
+    {
+      "id": "sensor",
+      "type": "ellipse",
+      "cx": 0.8586111111111111,
+      "cy": 0.49114583333333334,
+      "rx": 0.04861111111111111,
+      "ry": 0.09114583333333333,
+      "fill": "#b2d8b1",
+      "stroke": "#588157",
+      "stroke_width": 2,
+      "parent": "panel-b-layer"
+    },
+    {
+      "id": "arrow-a",
+      "type": "line",
+      "x1": 0.18833333333333332,
+      "y1": 0.490625,
+      "x2": 0.29333333333333333,
+      "y2": 0.490625,
+      "stroke": "#555555",
+      "stroke_width": 3,
+      "arrow": true,
+      "parent": "panel-a-layer"
+    },
+    {
+      "id": "arrow-b",
+      "type": "line",
+      "x1": 0.6883333333333334,
+      "y1": 0.490625,
+      "x2": 0.7933333333333333,
+      "y2": 0.490625,
+      "stroke": "#555555",
+      "stroke_width": 3,
+      "arrow": true,
+      "parent": "panel-b-layer"
+    }
+  ],
+  "assumptions": [
+    "Original pedagogical signal flow diagram, not an experimental claim.",
+    "Text baseline coordinates measured from reference design."
+  ]
+}

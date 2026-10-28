@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+node_modules/
+output/
+outputs/
+work/
+*.blend
+*.blend1
+*.ai
+*.log
+.env
+.env.*

@@ -1,0 +1,7 @@
+{
+  "name": "paper-figure-reconstruction",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local SVG rendering helper for the paper figure reconstruction Codex skill",
+  "dependencies": { "sharp": "^0.34.0" }
+}
