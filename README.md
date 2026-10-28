@@ -109,7 +109,7 @@ python scripts/figure.py illustrator --spec figure-spec.json --svg output/figure
 
 之后可直接在 Codex 中说：
 
-> 请维护 https://github.com/HyNlity/paper-figure-reconstruction，修复 issue #编号。先复现，再修改源代码并加入回归测试；验证通过后提交。若需要更新本机全局 Skill，请先核对并备份现有副本。
+> 请维护 [paper-figure-reconstruction](https://github.com/HyNlity/paper-figure-reconstruction)，修复 issue #编号。先复现，再修改源代码并加入回归测试；验证通过后提交。若需要更新本机全局 Skill，请先核对并备份现有副本。
 
 没有 issue 时也可以说：
 
