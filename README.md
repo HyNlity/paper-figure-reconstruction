@@ -8,8 +8,6 @@
 
 [快速开始](#quick-start) · [工作方式](#workflow) · [可编辑范围](#deliverables) · [验证与边界](#validation) · [反馈问题](https://github.com/HyNlity/paper-figure-reconstruction/issues)
 
-<sub>封面由图像模型生成，仅解释项目流程；不是本 Skill 的实测复现结果或光学模拟。生成说明与提示词见 [封面来源记录](assets/readme-cover.provenance.json)。</sub>
-
 ## 为什么使用它
 
 | 能力 | 具体做法 |
