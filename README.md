@@ -1,81 +1,31 @@
 # paper-figure-reconstruction
 
-将论文 PNG、截图或 PDF 中的科研示意图重建为**可编辑 SVG、真实 Blender 三维模型，以及可选的 Adobe Illustrator AI 文件**的 Codex Skill。
+![从论文参考图，经统一 Blender 三维场景，生成带可编辑标注的科研图](assets/readme-cover.png)
 
-**从一张参考图，建立一个能检查、能修改、能继续维护的科研绘图工程。** 项目围绕参考图的布局、形状、文字和科学关系组织工作，将二维标注与三维建模分别交给合适的工具，并通过可追溯的源文件修改逐步提高相似度。
+**把论文示意图，重建成可以继续修改的科研绘图工程。**
 
-这是一个 **Codex Skill + 本地辅助脚本**项目：Codex 负责观察参考、分解结构和编写复杂建模代码，脚本负责重复执行生成、渲染、比较与导出。
+一个面向 Codex 的 Skill：从 PNG、截图或 PDF 分析结构与科学含义，在 Blender 中建立真实几何，再用 SVG／Illustrator 添加可编辑文字、公式和标注。交付预览图，也保留建模参数、源文件和验证记录。
 
-## 项目有什么特点？
+[快速开始](#quick-start) · [工作方式](#workflow) · [可编辑范围](#deliverables) · [验证与边界](#validation) · [反馈问题](https://github.com/HyNlity/paper-figure-reconstruction/issues)
 
-| 特点 | 具体做法 | 对使用者的价值 |
-|---|---|---|
-| **忠于参考的逆向重建** | 先拆分 panel、文字、箭头、物体及遮挡关系，再拟合布局和几何 | 可以沿用论文的表达结构，而不是重新设计一张无关的图 |
-| **三维部分真实建模** | 使用 Blender mesh、curve、材质、相机和灯光；保留 `.blend` 与建模代码 | 后续可以改变结构、角度或视点；不会把截图平面冒充三维模型 |
-| **二维与三维协同** | SVG 保留原生文字和路径；Blender 输出透明渲染；Illustrator 可选地分层排版 | 兼顾三维质感和标注编辑，纯二维任务也能独立完成 |
-| **修改源文件后迭代** | 用组件 ID、`figure-spec.json` 和项目脚本定位修改对象，再重新渲染 | 能定向调整某个箭头、晶片或 panel，并检查需要保留的部分 |
-| **视觉与语义分别验收** | 同尺寸叠图、差异图、SSIM、轮廓距离，加上箭头方向、旋向和结构核对 | 能定位偏差，也能发现“分数很高但关键元素错误”的情况 |
-| **面向长期维护** | 保存源码和来源信息，提供问题模板、回归测试及更新备份 | 遇到问题可以给出最小复现，再修复、验证和更新安装副本 |
+<sub>封面由图像模型生成，仅解释项目流程；不是本 Skill 的实测复现结果或光学模拟。生成说明与提示词见 [封面来源记录](assets/readme-cover.provenance.json)。</sub>
 
-这些特点包含工作流约定和已实现的工具能力。尤其是科学语义判断、复杂几何建模和最终视觉验收，仍需要 Codex 分析及使用者审阅，并非全部由脚本自动完成。
+## 为什么使用它
 
-## 适合什么任务？
+| 能力 | 具体做法 |
+|---|---|
+| **统一的三维空间关系** | 需要相互遮挡、穿透或共享视点的晶体、光束、偏振螺旋等，在同一 Blender 场景中建模和渲染 |
+| **先弄清楚画的是什么** | 放大参考并查阅已有图注；材料、晶格或箭头含义仍不明确时，先询问用户，暂停相关细节 |
+| **保留可编辑源文件** | 三维几何保存在 `.blend`；文字、公式和说明箭头保留为 SVG／AI 原生对象 |
+| **从源头修正偏差** | 用共享单元、厚度、间距、旋转轴、转角及相机参数调整结构，再重新渲染 |
+| **分别检查视觉与科学含义** | 对比图和局部指标辅助定位偏差，同时核对结构、遮挡、方向、旋向及标注 |
 
-- **论文示意图重建**：从 PNG、截图或指定 PDF 页/区域恢复布局、文字、箭头和对象层级。
-- **二维标注与三维物体混合的图**：例如材料堆叠、光路元件或装置示意；复杂形状通过项目专用 Blender Python 实现。
-- **已有工程的局部修改**：增加 panel、更改晶片转角、替换标注，同时明确哪些内容必须保持不变。
+Codex 负责理解参考、确认歧义和编写复杂几何；本地脚本负责环境检查、生成、渲染、比较与导出。原生文字数量或图像相似度不能单独证明复现正确。
 
-如果目标是从曲线图提取实验数据、从单张图片恢复不可见的精确三维结构，或生成与参考无关的新视觉设计，需要其他方法。没有晶体学数据时，图中的原子排布只能作为有明确假设的示意模型，不能宣称恢复了真实晶体结构。
+<a id="quick-start"></a>
+## 快速开始
 
-## 图 1：从参考图到可验证的重建
-
-```mermaid
-flowchart TD
-    R["参考 PNG / 截图 / PDF 指定区域"] --> A["Codex 分析结构、文字、层级与科学关系"]
-    A --> S["figure-spec.json 与项目源码"]
-    S --> V["二维：原生 SVG 文字与路径"]
-    S --> B["三维：Blender 几何建模与透明渲染"]
-    V --> C["合成预览 PNG"]
-    B --> C
-    R -. "只用于观察和比较" .-> Q["视觉比较 + 科学语义 + 可编辑性检查"]
-    C --> Q
-    Q --> D{"满足本次验收目标？"}
-    D -- "否：定位具体偏差" --> F["定向修改布局、相机、几何或标注"]
-    F --> S
-    D -- "是" --> O["交付源文件、预览与质量报告"]
-```
-
-这是一轮轮修改源文件的过程。优先处理布局、相机和轮廓，再调整内部结构、文字、材质与灯光。无法从参考确定的信息和仍存在的偏差要进入报告；指标提高并不自动代表科学含义正确。
-
-## 图 2：文件之间的关系与可编辑范围
-
-```mermaid
-flowchart LR
-    P["figure-spec.json<br/>组件、布局与参数"] --> S["SVG<br/>原生文字、箭头与路径"]
-    P --> C["Blender Python<br/>项目建模逻辑"]
-    C --> B["BLEND<br/>几何、材质、相机与灯光"]
-    B --> R["自行渲染的 PNG<br/>三维部分的二维投影"]
-    R --> S
-    S --> I["Illustrator JSX<br/>可选：分层、排版与置入渲染"]
-    I --> AI["AI<br/>二维对象可编辑；三维渲染为位图"]
-    S --> PNG["最终 PNG<br/>查看、比较与使用"]
-    AI --> PNG
-```
-
-| 想修改什么？ | 修改入口 | 需要注意 |
-|---|---|---|
-| 标注文字、箭头端点、二维布局 | spec / SVG；或 AI 中的原生对象 | AI 中的手工改动不会自动回写 spec 或 SVG |
-| 原子位置、物体形状、旋转角度、相机与材质 | Blender 建模脚本 / `.blend` | 改完后重新渲染，再更新合成图中的渲染素材 |
-| 最终图片尺寸、画布和图层排版 | spec / 合成逻辑；或 AI | 比较前显式统一画布尺寸，并记录裁剪或缩放 |
-| 重建质量和遗漏项 | 对比图、指标 JSON、质量报告 | PNG 便于查看，但不包含原生文字或三维几何 |
-
-内嵌渲染的 SVG/AI 并非全矢量文件；三维几何保存在 BLEND 中。`figure-spec.json` 是布局与参数的约定入口，复杂建模逻辑仍由项目代码表达。这个最小版本不提供应用间的双向自动同步：若直接修改 AI 或 Blender，需要相应维护源参数或脚本，才能在下次重建时保留改动。
-
----
-
-## 安装到 Codex
-
-先克隆仓库到长期保留的开发目录，再安装 Skill：
+### 1. 安装 Skill
 
 ```bash
 git clone https://github.com/HyNlity/paper-figure-reconstruction.git
@@ -83,51 +33,40 @@ cd paper-figure-reconstruction
 python3 scripts/install_skill.py
 ```
 
-默认安装到 `~/.codex/skills/paper-figure-reconstruction/`；若设置了 `CODEX_HOME`，则安装到其 `skills/` 下。也可通过 `--target` 指定路径。安装器只复制 Skill 所需文件，不复制测试、论文素材或 Git 历史。
+默认安装到 `$CODEX_HOME/skills/paper-figure-reconstruction`；未设置 `CODEX_HOME` 时使用 `~/.codex/skills/paper-figure-reconstruction`。安装器只复制本 Skill，不安装桌面软件、不修改 MCP 或 Codex 配置。
 
-首次安装拒绝覆盖已有目录。更新时：
+更新已有安装前，先核对本地修改：
 
 ```bash
 git pull --ff-only
 python3 scripts/install_skill.py --update
 ```
 
-更新前会完整备份现有 Skill 到同级 `skill-backups/`，备份不进入可发现的 `skills/` 目录。先在仓库修改和测试，再更新全局副本；不要长期只修改全局安装目录，否则后续同步容易丢失改动。安装器只管理本 Skill，不修改 Codex 配置或安装软件。
+`--update` 会先完整备份旧版到 `skills/` 同级的 `skill-backups/`，再替换安装副本。若仓库有未提交修改，应先保留和处理，避免覆盖自己的维护工作。
 
-## 日常使用
+### 2. 提供参考图并发起任务
 
-在 Codex 中附上参考图或 PDF，调用：
+在 Codex 中附上图像、PDF 指定页，或已有工程，并说明想保留的部分。例如：
 
-> 使用 $paper-figure-reconstruction 重建这张论文图。三维部分必须真实建模，文字保持可编辑。交付 SVG、BLEND、可用时的 AI，以及视觉对比报告。
+> 请使用 paper-figure-reconstruction 复现这张论文示意图。相互关联的三维结构和光束放在同一个 Blender 场景，最后添加可编辑文字与标注。如果看不清材料或晶格结构，先向我确认。先给我看无标注的整体预览，再细化；交付 PNG、SVG 和 Blender 源文件，可用时提供 AI。
 
-继续已有工作时，提供原始 `.blend` / SVG / AI 和需要保留的内容：
+也支持纯二维示意图，以及已有 SVG／BLEND 工程的局部修改。纯二维任务不需要额外制作 Blender 文件。
 
-> 基于已有工程扩展 panel b，保持 panel a 不变。先核对相机、原子布局和旋转方向，再调整材质；验证 panel a 未发生变化。
-
-不要求每张图都经过所有软件。纯二维图只需 SVG；真正的三维物体在 Blender 中建模。SVG/AI 可以包含自行渲染的 PNG，但该部分的几何编辑入口是 `.blend`。
-
-## 工作流与产物
-
-1. 阅读参考，识别 panels、文字、箭头、几何、遮挡和层级，记录不确定信息。
-2. 建立 `figure-spec.json`：稳定组件 ID、归一化二维坐标、颜色、字体、三维参数和来源信息。
-3. 生成原生 SVG 或 Blender Python 建模脚本，保存可编辑源文件。
-4. 同尺寸渲染，生成叠图、差异图、SSIM 和轮廓距离，逐 panel 核对。
-5. 定向修改布局、相机、几何、标注及材质，再重新渲染。
-6. 可用时通过 Illustrator JSX 导入、分层并保存 AI；实际修改对象、重新打开并渲染，验证可编辑性。
-
-典型交付：`figure.png`、`figure.svg`、三维工作的 `figure.blend`、可用时的 `figure.ai`、`figure-spec.json`、建模源码、环境清单、比较图与质量报告。论文原图不能充当重建纹理或成品素材；保留出处及版权标记，公开复用前核查论文图片许可。
-
-## 环境与命令行工具
-
-基础运行时：Python 3.9+、NumPy、Pillow；SVG 渲染需要 Node.js 和 Sharp。Blender、Illustrator、Poppler 按任务需要使用。MCP **不是必需依赖**，也不默认假设存在“官方 Illustrator MCP”。
-
-先检查已有环境：
+### 3. 检查环境
 
 ```bash
 python3 scripts/figure.py doctor --out environment.json
 ```
 
-如果已有 Codex 运行时包含这些库，直接使用其 Python / Node。只有确认需要新环境时，再自行选择以下安装方式；Skill 不会自动执行：
+| 组件 | 用途 |
+|---|---|
+| Python 3.9+、NumPy、Pillow | 本地脚本、图像比较与检查 |
+| Node.js、Sharp | SVG 转 PNG |
+| Blender | 实际三维建模与渲染；纯二维任务可不使用 |
+| Adobe Illustrator | 可选的 AI 原生文字、路径及嵌入渲染导出 |
+| Poppler | PDF 输入的页面渲染与文本提取 |
+
+优先复用已有环境。需要独立环境时，可自行安装项目依赖：
 
 ```bash
 python3 -m venv .venv
@@ -136,7 +75,54 @@ python -m pip install -r requirements.txt
 npm install
 ```
 
-用原创示例运行二维最小流程：
+MCP 不是必需依赖。已安装应用、配置了连接和连接当前可用，是不同的事实；工具会分别检查，不默认存在“官方 Illustrator MCP”。
+
+<a id="workflow"></a>
+## 工作方式
+
+```mermaid
+flowchart LR
+    R[参考图与已有资料] --> E[检查尺寸、透明度和科学含义]
+    E --> Q{关键结构是否明确}
+    Q -- 否 --> U[询问用户，暂停相关细节]
+    U --> E
+    Q -- 是 --> G[参数化几何与相机]
+    G --> B[统一 Blender 场景]
+    B --> P[无标注预览：检查轮廓与遮挡]
+    P --> D[细化已确认的结构与材质]
+    D --> A[SVG / AI 添加文字与说明标注]
+    A --> V[视觉、语义和可编辑性验证]
+    V --> O[预览与源文件]
+    V -- 发现偏差 --> G
+```
+
+**三维对象交给 Blender。** 用同一个单元建立重复结构，明确厚度、间距、旋转轴与转角，再调整相机。需要穿过晶体的光束、偏振螺旋和物理场矢量与晶体共处一个场景；不按截图角点逐件拼接，也不在 SVG 中另外画一束光来代替真实遮挡关系。独立面板可以分别建模。
+
+**说明标注交给矢量工具。** 文字、公式、角度辅助线、尺寸箭头和说明性矢量保留为原生对象。纯二维图直接采用矢量流程，不强制经过上面的三维分支。
+
+**不清楚的科学信息先确认。** “二维材料”并不能确定材料种类、晶格或原子排列。模糊的重复纹理不能擅自替换成箭头、三角凸起或装饰图案；先查看已有资料，仍无法确认就具体询问，同时可以继续明确的整体几何。
+
+用户要求审核当前结果时，先交付现有预览与可用源文件，并说明未完成项；不会为了额外导出或完整验证而延迟审核。
+
+<a id="deliverables"></a>
+## 交付什么，在哪里修改
+
+| 文件 | 内容与编辑入口 |
+|---|---|
+| `figure.png` | 最终或阶段预览，便于查看与比较 |
+| `figure.blend` | 三维几何、材质、相机和灯光；在这里修改真实空间结构 |
+| `figure.svg` | 原生文字、公式、路径及整体三维渲染；三维部分是位图，不是矢量网格 |
+| `figure.ai`（可用时） | Illustrator 原生标注与嵌入渲染；实际三维几何仍在 BLEND 中 |
+| `figure-spec.json`、建模源码 | 组件、证据、假设、几何参数和重建逻辑 |
+| 环境清单、比较图与质量报告 | 软件版本、验证结果、未完成检查和残余偏差 |
+
+纯二维任务无需 BLEND。AI 可用性以实际导出结果为准。手工修改 AI 或 Blender 不会自动回写 spec／脚本，若希望下次重建保留修改，需要同步维护源参数。
+
+## 原创二维示例与命令行
+
+下图是仓库内可运行的原创示例，展示文字、箭头和两个独立 panel，区别于顶部的概念封面。
+
+![原创二维示例的实际渲染：原生文字、箭头和两个 panel](examples/two-panel/preview.png)
 
 ```bash
 python scripts/figure.py svg --spec examples/two-panel/figure-spec.json --out output/figure.svg
@@ -145,72 +131,59 @@ python scripts/figure.py audit-svg --svg output/figure.svg
 python scripts/figure.py compare --reference examples/two-panel/reference.png --candidate output/figure.png --spec examples/two-panel/figure-spec.json --out output/comparison
 ```
 
-Sharp 解析顺序：`PFR_NODE_MODULES`、普通 Node 模块查找、已有 Codex bundled runtime。`PFR_NODE_MODULES` 应指向包含 Sharp 的 `node_modules` 目录。
+Sharp 解析顺序为 `PFR_NODE_MODULES`、普通 Node 模块查找、已有 Codex bundled runtime。`PFR_NODE_MODULES` 应指向包含 Sharp 的 `node_modules` 目录。
 
 三维与 Illustrator 入口：
 
 ```bash
 python scripts/figure.py blender --spec figure-spec.json --out output/3d --dry-run
+python scripts/figure.py blender --spec figure-spec.json --out output/3d --script rebuild.py --dry-run
 python scripts/figure.py illustrator --spec figure-spec.json --svg output/figure.svg --out output/ai
 ```
 
-前者输出待审批执行的 Blender 命令，不绕过沙盒；复杂几何用 `--script rebuild.py` 指定自定义建模脚本。后者生成 `import.jsx` 和矢量导入文件，不自动启动 Illustrator。执行方法见 [应用适配说明](references/applications.md)。
+Blender 命令先用 `--dry-run` 查看，再按运行环境要求执行；自定义建模脚本使用 `--script`。Illustrator 入口生成 JSX 与矢量导入文件，不自动启动应用。执行方法与已知限制见 [应用适配说明](references/applications.md)。
 
-## 已知问题与处理方式
-
-| 现象 | 处理 |
-|---|---|
-| 本机 Blender 4.5.10 在沙盒内 Metal 检测时崩溃 | 按环境要求申请沙盒外执行；CPU 渲染不能避开启动检测；不要反复重试或重置偏好设置 |
-| Illustrator 中箭头只剩头部 | 已改为显式原生箭杆和头部路径，避免 SVG marker 导入问题 |
-| 含内嵌图像的 SVG 导入 Illustrator 长时间占用 | 适配器先导入矢量占位，再原生置入/嵌入自建 PNG；超时后先检查进程，不立即重复执行 |
-| 文字出现方框或字体替代 | 核对字体和具体字形；数学符号必要时单独用可编辑路径，保留其他原生文字 |
-| SSIM 很高但缺少关键箭头 | 同时检查 panel、局部结构与科学语义；指标不是完整性证明 |
-| 两张预览尺寸不同 | 显式统一画布、裁剪并记录转换；比较器不会偷偷缩放或变形对齐 |
-| 密集大图的轮廓比较较慢 | 当前采用精确分块最近距离；先对明确记录尺寸的预览/局部区域诊断，再做最终尺寸比较 |
-
-这些是实际遇到并验证的具体问题，不代表对所有软件版本和平台的保证。当前真实应用测试环境为 macOS、Blender 4.5.10 LTS、Illustrator 30.4.0。
-
-## 遇到问题后，如何让我继续维护
-
-建议在 [Issues](https://github.com/HyNlity/paper-figure-reconstruction/issues) 新建问题，使用“Bug report”模板，记录软件版本、最小复现步骤、期望与实际结果、错误日志和允许分享的参考/输出。没有合适的公开素材时，只描述问题或提供原创最小示例，不上传未授权论文和未公开研究资料。
-
-之后可直接在 Codex 中说：
-
-> 请维护 [paper-figure-reconstruction](https://github.com/HyNlity/paper-figure-reconstruction)，修复 issue #编号。先复现，再修改源代码并加入回归测试；验证通过后提交。若需要更新本机全局 Skill，请先核对并备份现有副本。
-
-没有 issue 时也可以说：
-
-> 使用 paper-figure-reconstruction 时，Illustrator 导出的箭头丢失。参考文件在……，预览在……，版本为……。请在仓库修复，并说明根因、验证结果和仍未解决的问题。
-
-每次维护应明确：复现证据 → 根因/假设 → 最小修改 → 回归测试 → 实际应用验证 → 提交与安装同步。仓库中的 [AGENTS.md](AGENTS.md) 给后续维护者保留了这些约束；需要外部应用的验证不能用纯 Python 测试冒充。
-
-## 测试与证据边界
+<a id="validation"></a>
+## 验证与已知边界
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-测试覆盖 SVG 原生文字/箭头、错误输入、比较器对平移和缺失元素的响应，以及安装/更新时的备份行为。不会启动 Blender / Illustrator，也不会安装依赖。
+当前四项自动测试覆盖：原生 SVG 文字与箭头及实际编辑、错误输入与参考位图拒绝、比较器对平移和缺失结构的响应、安装更新的备份行为。它们不会启动 Blender／Illustrator，也不等同于三维建模或科学语义验证。
 
-初始人工与应用验证还包括：
+本次文档更新（2026-11-03）已通过官方 Skill 格式校验、上述四项测试、原创二维示例生成／渲染／SVG 审计／比较，以及 README 本地链接检查。本次未修改渲染器或应用适配代码，也未重新运行桌面应用测试。
 
-- 原创二维图：SSIM 0.910550 → 0.994837，轮廓平均误差 0.418104 → 0.102396 px；8 个原生文字；原生 AI 文字/箭杆编辑后另一 panel 像素不变。
-- 既有晶体工程：修改真实几何、保存后重新打开、迁移目录重建通过；原工程保持不变。与论文参考的基线 SSIM 约 0.704800，**未达到 1:1**。
-- Illustrator 混合图：成功置入自行渲染的 PNG，0 外链；真实三维结构在 BLEND 中编辑。
+历史应用检查已验证部分二维对象编辑、三维几何编辑与重建、混合图置入流程，具体适用环境为 macOS、Blender 4.5.10 LTS 和 Illustrator 30.4.0。不能据此承诺所有版本兼容。
 
-仓库仅包含可公开的原创二维示例；论文参考、私人路径和大型本地工程不随仓库发布。两例验证的是工作流与可编辑性，不是任意论文的自动识别能力。
+近期扭转材料案例改善了**统一三维建模与整体轮廓**，但内部结构仍被错误表现为箭头状凸起；这是待确认和修正的材料表达问题，不是完整复现成功。经验与验收方法见 [质量检查](references/quality.md)。
 
-## 项目结构
+| 已知情况 | 当前处理与验证要求 |
+|---|---|
+| 本机 Blender 4.5.10 在受限环境内的 Metal 启动检测崩溃 | 经批准在受限环境外启动；CPU 渲染不能避开启动检测，不反复重试或重置偏好设置 |
+| Illustrator 导入 SVG marker 后箭杆丢失 | 使用显式箭杆与头部路径，并检查导出预览 |
+| 内嵌图像 SVG 导入 Illustrator 长时间占用 | 使用矢量占位和原生置入／嵌入；超时先检查状态，不重复启动同一工作 |
+| SVG 分组提升为图层后，遮挡顺序改变 | 现有适配器的分组处理仍需按图核对，不能仅凭对象计数判定正确 |
+| 希腊字母、上下标或矢量符号异常 | 检查编码、字体及实际导出；Unicode 转义与独立定位文字／路径是候选处理方法，未在该失败案例中完成修复验证 |
+| 透明背景掩盖标注，或比较图尺寸不一致 | 先在白底检查完整参考；保留真实尺寸与纵横比，明确记录缩放／裁剪，不拉伸参考图凑指标 |
 
-```text
-SKILL.md                  Codex Skill 入口
-agents/openai.yaml        Skill 展示信息
-scripts/                  环境检查、SVG、比较、Blender、Illustrator、安装工具
-references/               spec、应用适配、验收与参考项目审查
-examples/two-panel/       原创参考、spec、SVG 与预览
-tests/                    无需桌面应用的回归测试
-.github/ISSUE_TEMPLATE/   问题反馈模板
-AGENTS.md                 后续 Codex 维护约定
-```
+相似度和轮廓距离用于定位偏差；完整性、旋向、材料身份及晶格拓扑必须单独检查。无法从单张图片恢复不可见的精确结构，曲线数据提取也不在本 Skill 的目标内。
 
-参考项目的能力、依赖和许可证审查见 [project-review.md](references/project-review.md)。本项目当前没有复制其源码或字体；第三方代码许可不等于论文图像的使用许可。
+## 维护与参考
+
+问题反馈请使用 [Issues](https://github.com/HyNlity/paper-figure-reconstruction/issues)，附上版本、最小复现、期望与实际结果，以及允许公开的素材。也可以在 Codex 中说：
+
+> 请维护 paper-figure-reconstruction，修复 issue #编号。先复现，再修改源代码并加入必要回归测试；说明实际验证结果和剩余问题。更新全局 Skill 前请核对并备份现有副本。
+
+| 文档 | 内容 |
+|---|---|
+| [SKILL.md](SKILL.md) | Codex 的任务执行规则 |
+| [figure-spec 约定](references/spec.md) | 坐标、组件、场景参数和证据记录 |
+| [应用适配](references/applications.md) | Blender／Illustrator 执行与已知问题 |
+| [质量检查](references/quality.md) | 比较方法、编辑性验证与案例经验 |
+| [AGENTS.md](AGENTS.md) | 仓库维护约束 |
+| [参考项目审查](references/project-review.md) | 第三方能力、依赖与许可证边界 |
+
+README 的信息组织参考了 [Manim](https://github.com/ManimCommunity/manim) 的演示与入门顺序，以及 [Best-README-Template](https://github.com/othneildrew/Best-README-Template) 的导航结构；未复制其封面、标志或示例代码。
+
+论文原图用于观察和比较，不能充当重建纹理或成品素材。保留出处与版权标记，公开复用前核查许可；仓库不发布私人路径、未授权论文图片或大型私人工程。顶部生成封面只用于项目介绍，科学复现流程仍以真实几何和原生标注为准。

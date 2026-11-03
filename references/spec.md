@@ -25,3 +25,8 @@ Optional `scene`: `units`, `basis`, `camera` (location,target,type,ortho_scale),
 Optional `scene.base_blend` loads an existing file; optional `scene.scene_name` selects the scene. The primitive backend adds named objects and rejects collisions; use a custom builder for controlled updates. Preserve the original file by saving to a distinct output path. A custom script must accept `--spec PATH --out DIRECTORY` after Blender's `--`.
 
 Record `source.sha256`, PDF page/crop, URL/DOI when available, plus asset provenance and confidence/assumptions for inferred geometry. Never represent a schematic atom array as a verified CIF model.
+
+## Evidence and coherent scene construction
+Use the existing source, scene and assumptions fields to distinguish observed features, user-confirmed interpretations, visual estimates and unresolved semantic questions. Record the source of a confirmation and which detail is awaiting an answer; uncertain material identity or lattice topology must not become fabricated geometry. These are documentation conventions, not new required parser fields.
+
+For repeated 3D units, store the common shape, dimensions, thickness, spacing, rotation axis, angle sequence and camera explicitly. Screen-space landmarks constrain the projection; they do not replace the shared 3D construction with unrelated corner coordinates. Objects with mutual occlusion or penetration use one scene. Its own-render image occupies a single coherent placement in the annotated panel; separate panels can retain separate renders. Physical field-vector geometry belongs with its field, while dimension arrows and angle guides remain annotations.
